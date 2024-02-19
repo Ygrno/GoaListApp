@@ -2,8 +2,6 @@ import { TextInput, View, StyleSheet, Button } from "react-native";
 import { useState } from "react";
 
 function GoalInput(props) {
-  let i = 0;
-
   const [enteredGoalText, setEnteredGoalText] = useState("");
   const [TextInputPlaceholder, setTextInputPlaceholder] = useState(
     "Add your goal for today"
@@ -19,7 +17,7 @@ function GoalInput(props) {
   function addGoalHandler() {
     if (enteredGoalText != "") {
       setEnteredGoalText("");
-      props.onGoalHandler({ text: enteredGoalText, key: i++ });
+      props.onGoalHandler({ text: enteredGoalText });
     } else {
       setTextInputPlaceholder("You didn't entered any text!");
     }
