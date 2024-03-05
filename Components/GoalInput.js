@@ -1,5 +1,6 @@
 import { TextInput, View, StyleSheet, Button } from "react-native";
 import { useState } from "react";
+import { StatusBar } from "expo-status-bar";
 
 function GoalInput(props) {
   const [enteredGoalText, setEnteredGoalText] = useState("");
@@ -24,21 +25,24 @@ function GoalInput(props) {
   }
 
   return (
-    <View style={styles.inputContainer}>
-      <TextInput
-        style={styles.textInput}
-        placeholder={TextInputPlaceholder}
-        placeholderTextColor={"#ffffffff"}
-        onChangeText={goalInputHandler}
-        value={enteredGoalText}
-      ></TextInput>
-      <Button
-        title="Add Goal"
-        backgroundColor="white"
-        color={"#242424ff"}
-        onPress={addGoalHandler}
-      />
-    </View>
+    <>
+      <StatusBar style="light" />
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.textInput}
+          placeholder={TextInputPlaceholder}
+          placeholderTextColor={"#ffffffff"}
+          onChangeText={goalInputHandler}
+          value={enteredGoalText}
+        ></TextInput>
+        <Button
+          title="Add Goal"
+          backgroundColor="white"
+          color={"#242424ff"}
+          onPress={addGoalHandler}
+        />
+      </View>
+    </>
   );
 }
 

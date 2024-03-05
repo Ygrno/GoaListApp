@@ -1,18 +1,53 @@
 import { StyleSheet, View, ImageBackground, FlatList } from "react-native";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import GoalItem from "./Components/GoalItem";
 import GoalInput from "./Components/GoalInput";
 // const image = {uri: './assets/mountains_Background.jpeg'};
+
+import axios from "axios";
 let i = 0;
 
 export default function App() {
   const [courseGoals, setCourseGoals] = useState([]);
+
+  useEffect(() => {
+    const fetchGoals = async () => {
+      try {
+        const response = await axios.get("http://10.0.2.2:8000/goals/");
+        setCourseGoals(
+          response.data.goals.map((goal) => {
+            i++;
+            console.log(goal);
+            return { key: goal.ID, text: goal.Text };
+          })
+        );
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchGoals();
+  }, []); // The empty array means this effect runs once on mount
 
   function addGoalHandler(newCourseGoals) {
     setCourseGoals((currentCourseGoals) => [
       ...currentCourseGoals,
       { key: i.toString(), text: newCourseGoals.text },
     ]);
+
+    const callApi = async () => {
+      try {
+        const response = await axios.post("http://10.0.2.2:8000/goals/", {
+          ID: i,
+          Text: newCourseGoals.text,
+        });
+        console.log(response.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    callApi();
+
     i++;
   }
 
@@ -20,6 +55,19 @@ export default function App() {
     setCourseGoals((currentCourseGoals) => {
       return currentCourseGoals.filter((goal) => goal.key !== goalId);
     });
+
+    const callApi = async () => {
+      try {
+        const response = await axios.delete(
+          `http://10.0.2.2:8000/goals/${goalId}`
+        );
+        console.log(response.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    callApi();
   }
 
   return (
