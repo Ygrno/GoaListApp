@@ -13,7 +13,9 @@ export default function App() {
   useEffect(() => {
     const fetchGoals = async () => {
       try {
-        const response = await axios.get("http://10.0.2.2:8000/goals/");
+        const response = await axios.get(
+          "https://fastapi-example-xguk.onrender.com/goals/"
+        );
         setCourseGoals(
           response.data.goals.map((goal) => {
             i++;
@@ -37,10 +39,13 @@ export default function App() {
 
     const callApi = async () => {
       try {
-        const response = await axios.post("http://10.0.2.2:8000/goals/", {
-          ID: i,
-          Text: newCourseGoals.text,
-        });
+        const response = await axios.post(
+          "https://fastapi-example-xguk.onrender.com/goals/",
+          {
+            ID: i,
+            Text: newCourseGoals.text,
+          }
+        );
         console.log(response.data);
       } catch (error) {
         console.error(error);
@@ -59,7 +64,7 @@ export default function App() {
     const callApi = async () => {
       try {
         const response = await axios.delete(
-          `http://10.0.2.2:8000/goals/${goalId}`
+          `https://fastapi-example-xguk.onrender.com/goals/${goalId}`
         );
         console.log(response.data);
       } catch (error) {
