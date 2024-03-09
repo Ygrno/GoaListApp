@@ -100,6 +100,7 @@ const styles = StyleSheet.create({
     width: Dimensions.get('screen').width,
     height: Dimensions.get('screen').height,
     direction: 'ltr',
+    backgroundColor: '#000000',
   },
 
   goalsContainer: {

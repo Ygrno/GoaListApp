@@ -9,10 +9,8 @@ function GoalItem(props) {
         onPress={props.onDeleteItem.bind(this, props.id)}
         style={({ pressed }) => pressed && styles.pressedItem}
       >
-        <View style={{ flexDirection: I18nManager.isRTL ? 'reverse-row' : 'row', alignItems: 'center' }}>
-          <Text style={isRTLText(props.text) ? styles.goalTextRight : styles.goalTextLeft}> {props.text} </Text>
-          <Image style={styles.trashIcon} source={require('../assets/trashIcon.png')}></Image>
-        </View>
+        <Text style={isRTLText(props.text) ? styles.goalTextRight : styles.goalTextLeft}> {props.text} </Text>
+        <Image style={styles.trashIcon} source={require('../assets/trashIcon.png')}></Image>
       </Pressable>
     </View>
   );
@@ -52,6 +50,7 @@ const styles = StyleSheet.create({
     //reddish color
     backgroundColor: '#ff0000',
     flex: 1,
+    flexDirection: I18nManager.isRTL ? 'reverse-row' : 'row',
     color: '#cfcfcf',
   },
 
