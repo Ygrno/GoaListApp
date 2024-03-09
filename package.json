@@ -1,5 +1,5 @@
 {
-  "name": "@goal-list",
+  "name": "GoalList",
   "version": "1.0.0",
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
@@ -9,12 +9,13 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "apsl-react-native-button": "^3.1.1",
     "axios": "^1.6.7",
-    "eslint": "^8.57.0",
-    "expo": "~50.0.7",
-    "expo-status-bar": "~1.11.1",
+    "expo": "^49.0.23",
+    "expo-status-bar": "~1.6.0",
+    "is-rtl-text": "^0.0.2",
     "react": "18.2.0",
-    "react-native": "0.73.4"
+    "react-native": "0.72.10"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"

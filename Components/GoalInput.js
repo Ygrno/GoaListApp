@@ -1,62 +1,63 @@
 import { useState, useEffect, useRef } from 'react';
-import { TextInput, View, StyleSheet, Button, Keyboard, Pressable, Image } from 'react-native';
+import { TextInput, View, StyleSheet, Button, Keyboard, Pressable, Image, I18nManager } from 'react-native';
+import isRTLText from '../is-rtl-detect';
 
 function GoalInput(props) {
   const [enteredGoalText, setEnteredGoalText] = useState('');
-  const [isButtonPressed, setIsButtonPressed] = useState(false);
+  // const [isButtonPressed, setIsButtonPressed] = useState(false);
+  const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   const [TextInputPlaceholder, setTextInputPlaceholder] = useState('Add your goal for today');
+  const [isThereNoText, setIsThereNoText] = useState(true);
   const textInputRef = useRef(null);
 
+  if (I18nManager.isRTL) {
+    setTextInputPlaceholder('הוסף מטרה להיום');
+  }
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+      setKeyboardVisible(true); // or some other action
+    });
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardVisible(false); // or some other action
+      setIsThereNoText(true);
+      goalInputHandler('');
+    });
+
+    return () => {
+      keyboardDidHideListener.remove();
+      keyboardDidShowListener.remove();
+    };
+  }, []);
+
   function goalInputHandler(enteredText) {
-    if (TextInputPlaceholder == "You didn't entered any text!") {
-      setTextInputPlaceholder('Your Course Goal!!!');
+    if (isThereNoText) {
+      if (I18nManager.isRTL) {
+        setTextInputPlaceholder('הוסף מטרה להיום');
+      } else {
+        setTextInputPlaceholder('Add your goal for today');
+      }
     }
     setEnteredGoalText(enteredText);
-  }
-  function addGoalHandlerFromTextInput() {
-    if (enteredGoalText != '') {
-      setEnteredGoalText('');
-      props.onGoalHandler({ text: enteredGoalText });
-    } else {
-      setTextInputPlaceholder("You didn't entered any text!");
-    }
-
-    textInputRef.current.focus();
+    setIsThereNoText(true);
   }
 
   function addGoalHandler() {
-    if (isButtonPressed) {
+    if (isKeyboardVisible) {
       if (enteredGoalText != '') {
         setEnteredGoalText('');
         props.onGoalHandler({ text: enteredGoalText });
       } else {
-        setTextInputPlaceholder("You didn't entered any text!");
+        if (I18nManager.isRTL) {
+          setTextInputPlaceholder('"!לא הזנת טקסט');
+        } else {
+          setTextInputPlaceholder("You didn't entered any text!");
+        }
       }
     } else {
-      setIsButtonPressed(true);
       textInputRef.current.focus();
     }
   }
-
-  useEffect(() => {
-    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
-      setIsButtonPressed(false);
-    });
-
-    return () => {
-      keyboardDidHideListener.remove();
-    };
-  }, []);
-
-  useEffect(() => {
-    const keyboardDidHideListener = Keyboard.addListener('keyboardDidShow', () => {
-      setIsButtonPressed(true);
-    });
-
-    return () => {
-      keyboardDidHideListener.remove();
-    };
-  }, []);
 
   return (
     <View style={styles.inputContainer}>
@@ -70,16 +71,11 @@ function GoalInput(props) {
         keyboardAppearance="dark"
         value={enteredGoalText}
         blurOnSubmit={false}
-        onSubmitEditing={addGoalHandlerFromTextInput}
-        // editable={isButtonPressed ? true : false}
+        onSubmitEditing={addGoalHandler}
       ></TextInput>
-      {/* <Button title="+" backgroundColor="white" color={'#242424ff'} onPress={addGoalHandler} /> */}
-      <Pressable onPress={addGoalHandler} android_ripple={styles.ImagePressed}>
-        <Image
-          source={require('../assets/add-button.png')}
-          style={{ width: 35, height: 35, paddingLeft: 5, resizeMode: 'contain' }}
-        />
-      </Pressable>
+      <View style={{ flex: 1 }}>
+        <Button title={I18nManager.isRTL ? 'הוסף' : 'Add'} onPress={addGoalHandler} color="#1c1c22d0"></Button>
+      </View>
     </View>
   );
 }
@@ -95,9 +91,9 @@ const styles = StyleSheet.create({
     paddingTop: 15,
     // borderTopWidth: 1,
     // borderTopColor: '#cccccc',
-    // padding:8
+    padding: 8,
     position: 'relative',
-    paddingHorizontal: 25,
+    // paddingHorizontal: 20,
   },
 
   textInput: {
@@ -114,7 +110,7 @@ const styles = StyleSheet.create({
   },
 
   textInputPressed: {
-    flex: 1,
+    flex: 4,
     borderWidth: 1,
     borderColor: '#cccccc',
     borderRadius: 15,
@@ -122,11 +118,18 @@ const styles = StyleSheet.create({
     marginRight: 8,
     padding: 8,
     color: 'white',
+    fontSize: 16,
   },
 
   ImagePressed: {
     width: 35,
     height: 35,
     color: 'Blue',
+  },
+
+  sendText: {
+    color: 'white',
+    fontSize: 20,
+    fontWeight: 'bold',
   },
 });

@@ -68,7 +68,7 @@ export default function App() {
 
   return (
     <>
-      {/* <StatusBar style="bl /> */}
+      <StatusBar style="light" />
       <ImageBackground
         source={require('./assets/mountains_Background.jpeg')}
         resizeMode="cover"
@@ -99,6 +99,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     width: Dimensions.get('screen').width,
     height: Dimensions.get('screen').height,
+    direction: 'ltr',
   },
 
   goalsContainer: {
