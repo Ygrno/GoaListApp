@@ -1,18 +1,31 @@
-import { Text, View, StyleSheet, Pressable, Image, I18nManager } from 'react-native';
+import { Text, View, StyleSheet, Pressable, Image, I18nManager, Animated } from 'react-native';
+import React, { useEffect, useRef } from 'react';
 import isRTLText from '../is-rtl-detect';
 
 function GoalItem(props) {
+  const fadeAnim = useRef(new Animated.Value(0)).current; // Initial value for opacity: 0
+
+  useEffect(() => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 250,
+      useNativeDriver: true,
+    }).start();
+  }, [fadeAnim]);
+
   return (
-    <View style={styles.goalItem}>
+    <Animated.View style={{ ...styles.goalItem, opacity: fadeAnim }}>
       <Pressable
         android_ripple={styles.pressedItem}
         onPress={props.onDeleteItem.bind(this, props.id)}
         style={({ pressed }) => pressed && styles.pressedItem}
       >
-        <Text style={isRTLText(props.text) ? styles.goalTextRight : styles.goalTextLeft}> {props.text} </Text>
-        <Image style={styles.trashIcon} source={require('../assets/trashIcon.png')}></Image>
+        <View style={{ flexDirection: I18nManager.isRTL ? 'reverse-row' : 'row', alignItems: 'center' }}>
+          <Text style={isRTLText(props.text) ? styles.goalTextRight : styles.goalTextLeft}> {props.text} </Text>
+          <Image style={styles.trashIcon} source={require('../assets/trashIcon.png')}></Image>
+        </View>
       </Pressable>
-    </View>
+    </Animated.View>
   );
 }
 
@@ -50,7 +63,6 @@ const styles = StyleSheet.create({
     //reddish color
     backgroundColor: '#ff0000',
     flex: 1,
-    flexDirection: I18nManager.isRTL ? 'reverse-row' : 'row',
     color: '#cfcfcf',
   },
 
