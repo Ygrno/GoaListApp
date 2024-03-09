@@ -13,6 +13,16 @@ function GoalItem(props) {
     }).start();
   }, [fadeAnim]);
 
+  let textComponent;
+  if (I18nManager.isRTL) {
+    textComponent = (
+      <Text style={isRTLText(props.text) ? styles.goalTextLeft : styles.goalTextRight}> {props.text} </Text>
+    );
+  } else
+    textComponent = (
+      <Text style={isRTLText(props.text) ? styles.goalTextRight : styles.goalTextLeft}> {props.text} </Text>
+    );
+
   return (
     <Animated.View style={{ ...styles.goalItem, opacity: fadeAnim }}>
       <Pressable
@@ -20,9 +30,12 @@ function GoalItem(props) {
         onPress={props.onDeleteItem.bind(this, props.id)}
         style={({ pressed }) => pressed && styles.pressedItem}
       >
-        <View style={{ flexDirection: I18nManager.isRTL ? 'reverse-row' : 'row', alignItems: 'center' }}>
-          <Text style={isRTLText(props.text) ? styles.goalTextRight : styles.goalTextLeft}> {props.text} </Text>
-          <Image style={styles.trashIcon} source={require('../assets/trashIcon.png')}></Image>
+        <View style={{ flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row', alignItems: 'center' }}>
+          {textComponent}
+          <Image
+            style={I18nManager.isRTL ? styles.trashIconR2L : styles.trashIcon}
+            source={require('../assets/trashIcon.png')}
+          ></Image>
         </View>
       </Pressable>
     </Animated.View>
@@ -46,7 +59,7 @@ const styles = StyleSheet.create({
     paddingLeft: 35,
     flex: 1,
     textAlign: 'left',
-    fontSize: 16,
+    fontSize: 18,
   },
 
   goalTextRight: {
@@ -55,7 +68,7 @@ const styles = StyleSheet.create({
     paddingLeft: 35,
     flex: 1,
     textAlign: 'right',
-    fontSize: 16,
+    fontSize: 18,
   },
 
   pressedItem: {
@@ -70,5 +83,11 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     marginRight: 10,
+  },
+
+  trashIconR2L: {
+    width: 20,
+    height: 20,
+    marginLeft: 10,
   },
 });

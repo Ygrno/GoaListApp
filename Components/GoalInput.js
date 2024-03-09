@@ -1,18 +1,16 @@
 import { useState, useEffect, useRef } from 'react';
 import { TextInput, View, StyleSheet, Button, Keyboard, Pressable, Image, I18nManager } from 'react-native';
-import isRTLText from '../is-rtl-detect';
 
 function GoalInput(props) {
   const [enteredGoalText, setEnteredGoalText] = useState('');
   // const [isButtonPressed, setIsButtonPressed] = useState(false);
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
-  const [TextInputPlaceholder, setTextInputPlaceholder] = useState('Add your goal for today');
+  const [TextInputPlaceholder, setTextInputPlaceholder] = useState(
+    I18nManager.isRTL ? 'הוסף מטרה להיום' : 'Add your goal for today'
+  );
+  // const [TextInputPlaceholder, setTextInputPlaceholder] = useState('Add your goal for today');
   const [isThereNoText, setIsThereNoText] = useState(true);
   const textInputRef = useRef(null);
-
-  if (I18nManager.isRTL) {
-    setTextInputPlaceholder('הוסף מטרה להיום');
-  }
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
@@ -49,7 +47,7 @@ function GoalInput(props) {
         props.onGoalHandler({ text: enteredGoalText });
       } else {
         if (I18nManager.isRTL) {
-          setTextInputPlaceholder('"!לא הזנת טקסט');
+          setTextInputPlaceholder('לא הזנת טקסט!');
         } else {
           setTextInputPlaceholder("You didn't entered any text!");
         }
