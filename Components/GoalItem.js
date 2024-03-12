@@ -47,8 +47,8 @@ export default GoalItem;
 const styles = StyleSheet.create({
   goalItem: {
     borderWidth: 2,
-    backgroundColor: '#2424244b',
-    borderColor: '#41414110',
+    backgroundColor: '#242424c8',
+    borderColor: '#41414117',
     borderRadius: 15,
     overflow: 'hidden',
   },
@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
   goalTextRight: {
     color: 'white',
     padding: 8,
-    paddingLeft: 35,
+    paddingLeft: 10,
     flex: 1,
     textAlign: 'right',
     fontSize: 18,
@@ -82,12 +82,14 @@ const styles = StyleSheet.create({
   trashIcon: {
     width: 20,
     height: 20,
-    marginRight: 10,
+    marginRight: 12,
+    // paddingRight: 10,
   },
 
   trashIconR2L: {
     width: 20,
     height: 20,
-    marginLeft: 10,
+    marginLeft: 12,
+    // paddingRight: 10,
   },
 });

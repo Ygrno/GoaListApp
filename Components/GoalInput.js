@@ -15,6 +15,7 @@ function GoalInput(props) {
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
       setKeyboardVisible(true); // or some other action
+      props.onKeyboardOpen(props.lastGoal.id);
     });
     const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
       setKeyboardVisible(false); // or some other action
@@ -45,6 +46,7 @@ function GoalInput(props) {
       if (enteredGoalText != '') {
         setEnteredGoalText('');
         props.onGoalHandler({ text: enteredGoalText });
+        props.onKeyboardOpen(props.lastGoal.id);
       } else {
         if (I18nManager.isRTL) {
           setTextInputPlaceholder('לא הזנת טקסט!');
@@ -72,7 +74,7 @@ function GoalInput(props) {
         onSubmitEditing={addGoalHandler}
       ></TextInput>
       <View style={{ flex: 1 }}>
-        <Button title={I18nManager.isRTL ? 'הוסף' : 'Add'} onPress={addGoalHandler} color="#1c1c22d0"></Button>
+        <Button title={I18nManager.isRTL ? 'הוסף' : 'Add'} onPress={addGoalHandler} color="#242424c8"></Button>
       </View>
     </View>
   );

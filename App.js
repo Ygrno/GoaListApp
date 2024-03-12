@@ -1,69 +1,51 @@
-import { StyleSheet, View, ImageBackground, FlatList, KeyboardAvoidingView, Dimensions } from 'react-native';
-import { useState, useEffect } from 'react';
+import { StyleSheet, View, ImageBackground, FlatList, Dimensions } from 'react-native';
+import { useState, useEffect, useRef } from 'react';
 import GoalItem from './Components/GoalItem';
 import GoalInput from './Components/GoalInput';
 import { StatusBar } from 'expo-status-bar';
-// const image = {uri: './assets/mountains_Background.jpeg'};
 
-import axios from 'axios';
+import { loadGoals, fetchGoals, postGoal, deleteGoal, loadGoalsFromStorage } from './Network';
+
 let i = 0;
 
 export default function App() {
   const [courseGoals, setCourseGoals] = useState([]);
+  let fetchedGoals = [];
+  let fetchedGoalsAndStoredGoalsUnion = [];
+
+  const flatListRef = useRef();
+
+  function scrollToIndex(index) {
+    if (index < 5) return;
+    flatListRef.current.scrollToIndex({ index });
+  }
 
   useEffect(() => {
-    const fetchGoals = async () => {
-      try {
-        const response = await axios.get('https://fastapi-example-xguk.onrender.com/goals/');
-        setCourseGoals(
-          response.data.goals.map((goal) => {
-            i++;
-            console.log(goal);
-            return { key: goal.ID, text: goal.Text };
-          })
-        );
-      } catch (error) {
-        console.error(error);
-      }
+    const handleFetchAndStorage = async () => {
+      let storageGoals = await loadGoalsFromStorage();
+      setCourseGoals(storageGoals);
+
+      fetchedGoals = await fetchGoals(i);
+      fetchedGoalsAndStoredGoalsUnion = await loadGoals({ fetchedGoals });
+      setCourseGoals(fetchedGoalsAndStoredGoalsUnion);
     };
 
-    fetchGoals();
-  }, []); // The empty array means this effect runs once on mount
+    handleFetchAndStorage();
+  }, []);
 
   function addGoalHandler(newCourseGoals) {
     setCourseGoals((currentCourseGoals) => [...currentCourseGoals, { key: i.toString(), text: newCourseGoals.text }]);
 
-    const callApi = async () => {
-      try {
-        const response = await axios.post('https://fastapi-example-xguk.onrender.com/goals/', {
-          ID: i,
-          Text: newCourseGoals.text,
-        });
-        console.log(response.data);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    callApi();
+    postGoal({ id: i, text: newCourseGoals.text });
 
     i++;
   }
 
   function deleteGoalHandler(goalId) {
+    deleteGoal(goalId);
     setCourseGoals((currentCourseGoals) => {
       return currentCourseGoals.filter((goal) => goal.key !== goalId);
     });
-
-    const callApi = async () => {
-      try {
-        const response = await axios.delete(`https://fastapi-example-xguk.onrender.com/goals/${goalId}`);
-        console.log(response.data);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    callApi();
   }
 
   return (
@@ -76,6 +58,7 @@ export default function App() {
       >
         <View style={styles.goalsContainer}>
           <FlatList
+            ref={flatListRef}
             data={courseGoals}
             renderItem={(itemData) => {
               return <GoalItem text={itemData.item.text} id={itemData.item.key} onDeleteItem={deleteGoalHandler} />;
@@ -86,7 +69,11 @@ export default function App() {
           />
         </View>
         <View style={styles.bottomLayout}>
-          <GoalInput onGoalHandler={addGoalHandler} />
+          <GoalInput
+            onGoalHandler={addGoalHandler}
+            onKeyboardOpen={scrollToIndex}
+            lastGoal={{ id: courseGoals.length - 1 }}
+          />
         </View>
       </ImageBackground>
     </>
