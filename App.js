@@ -1,42 +1,38 @@
 import { StyleSheet, View, ImageBackground, FlatList, Dimensions, Alert } from 'react-native';
 import { useState, useEffect, useRef } from 'react';
+import { StatusBar } from 'expo-status-bar';
 import GoalItem from './Components/GoalItem';
 import GoalInput from './Components/GoalInput';
-import { StatusBar } from 'expo-status-bar';
 
-import { loadGoals, fetchGoals, postGoal, deleteGoal, loadGoalsFromStorage } from './Network';
+import { loadGoals, fetchGoals, postGoal, deleteGoal, loadGoalsFromStorage, timeoutPromise } from './Network';
 
 export default function App() {
   const [courseGoals, setCourseGoals] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
 
-  let fetchedGoals = [];
-  let fetchedGoalsAndStoredGoalsUnion = [];
+  let fetchedGoals;
 
   const flatListRef = useRef();
 
   async function handleRefresh() {
     setRefreshing(true);
-    const timeoutPromise = new Promise((resolve, reject) => {
-      setTimeout(() => {
-        reject(new Error('Request timed out'));
-      }, 5000);
-    });
+    const fetchPromise = fetchGoals();
     try {
-      const fetchPromise = fetchGoals();
       fetchedGoals = await Promise.race([fetchPromise, timeoutPromise]);
-      fetchedGoalsAndStoredGoalsUnion = await loadGoals({ fetchedGoals });
-      setCourseGoals(fetchedGoalsAndStoredGoalsUnion);
     } catch (error) {
       console.error(error);
       Alert.alert(
         'Sync Error',
         'There was a problem syncing with the remote server.',
         [{ text: 'OK', onPress: () => console.log('OK Pressed') }],
-        { cancelable: false }
+        { cancelable: true }
       );
     } finally {
+      if (fetchedGoals instanceof Error == false) {
+        setCourseGoals(await loadGoals({ fetchedGoals }));
+      }
       setRefreshing(false);
+      console.log('refreshing = false');
     }
   }
 
@@ -47,13 +43,20 @@ export default function App() {
 
   useEffect(() => {
     const handleFetchAndStorage = async () => {
-      let storageGoals = await loadGoalsFromStorage();
-      setCourseGoals(storageGoals);
-      fetchedGoals = await fetchGoals();
-      fetchedGoalsAndStoredGoalsUnion = await loadGoals({ fetchedGoals });
-      setCourseGoals(fetchedGoalsAndStoredGoalsUnion);
+      setCourseGoals(await loadGoalsFromStorage());
+      const fetchPromise = fetchGoals();
+      fetchedGoals = await Promise.race([fetchPromise, timeoutPromise]);
+      if (fetchedGoals instanceof Error) {
+        Alert.alert(
+          'Connection Error',
+          'There was a problem connecting to the remote server.',
+          [{ text: 'OK', onPress: () => console.log('OK Pressed') }],
+          { cancelable: false }
+        );
+      } else {
+        setCourseGoals(await loadGoals({ fetchedGoals }));
+      }
     };
-
     handleFetchAndStorage();
   }, []);
 

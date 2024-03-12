@@ -89,4 +89,10 @@ async function deleteGoal(goalId) {
   }
 }
 
+export const timeoutPromise = new Promise((resolve, reject) => {
+  setTimeout(() => {
+    reject(new Error('Request timed out'));
+  }, 10000);
+});
+
 export { fetchGoals, loadGoals, postGoal, deleteGoal, loadGoalsFromStorage };
