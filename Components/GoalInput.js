@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { TextInput, View, StyleSheet, Button, Keyboard, Pressable, Image, I18nManager } from 'react-native';
+import { Text, TextInput, View, StyleSheet, Button, Keyboard, Pressable, I18nManager } from 'react-native';
 
 function GoalInput(props) {
   const [enteredGoalText, setEnteredGoalText] = useState('');
@@ -60,6 +60,8 @@ function GoalInput(props) {
     }
   }
 
+  const buttonText = I18nManager.isRTL ? 'הוסף' : 'Add';
+
   return (
     <View style={styles.inputContainer}>
       <TextInput
@@ -74,9 +76,20 @@ function GoalInput(props) {
         blurOnSubmit={false}
         onSubmitEditing={addGoalHandler}
       ></TextInput>
-      <View style={{ flex: 1 }}>
-        <Button title={I18nManager.isRTL ? 'הוסף' : 'Add'} onPress={addGoalHandler} color="#242424c8"></Button>
-      </View>
+      <Pressable
+        android_ripple={styles.pressedItem}
+        onPress={addGoalHandler}
+        style={{
+          flex: 1,
+          backgroundColor: '#242424e9',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: 8,
+          borderRadius: 3,
+        }}
+      >
+        <Text style={{ color: 'white', fontSize: 16 }}>{buttonText}</Text>
+      </Pressable>
     </View>
   );
 }
@@ -132,5 +145,13 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 20,
     fontWeight: 'bold',
+  },
+
+  pressedItem: {
+    opacity: 0.5,
+    //reddish color
+    backgroundColor: '#ff0000',
+    flex: 1,
+    color: '#989090',
   },
 });
