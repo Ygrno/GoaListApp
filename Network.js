@@ -1,12 +1,11 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
-async function fetchGoals(i) {
+async function fetchGoals() {
   try {
     const response = await axios.get('https://fastapi-example-xguk.onrender.com/goals/');
     const fetchedGoals = response.data.goals.map((goal) => {
-      i++;
-      //   console.log(goal);
+      console.log(goal);
       return { key: goal.ID, text: goal.Text };
     });
     await AsyncStorage.setItem('courseGoals', JSON.stringify(fetchedGoals));
@@ -76,15 +75,15 @@ async function postGoal({ id, text }) {
 
 async function deleteGoal(goalId) {
   try {
-    const response = await axios.delete(`https://fastapi-example-xguk.onrender.com/goals/${goalId}`);
-    console.log(response.data);
-
     const storedGoals = await AsyncStorage.getItem('courseGoals');
     if (storedGoals) {
       let parsedStoredGoals = JSON.parse(storedGoals);
       let filteredStoredGoals = parsedStoredGoals.filter((goal) => goal.key !== goalId);
       await AsyncStorage.setItem('courseGoals', JSON.stringify(filteredStoredGoals));
     }
+
+    const response = await axios.delete(`https://fastapi-example-xguk.onrender.com/goals/${goalId}`);
+    console.log(response.data);
   } catch (error) {
     console.error(error);
   }

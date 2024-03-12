@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
   goalTextLeft: {
     color: 'white',
     padding: 8,
-    paddingLeft: 35,
+    paddingLeft: 10,
     flex: 1,
     textAlign: 'left',
     fontSize: 18,

@@ -1,12 +1,10 @@
-import { StyleSheet, View, ImageBackground, FlatList, Dimensions } from 'react-native';
+import { StyleSheet, View, ImageBackground, FlatList, Dimensions, Alert } from 'react-native';
 import { useState, useEffect, useRef } from 'react';
 import GoalItem from './Components/GoalItem';
 import GoalInput from './Components/GoalInput';
 import { StatusBar } from 'expo-status-bar';
 
 import { loadGoals, fetchGoals, postGoal, deleteGoal, loadGoalsFromStorage } from './Network';
-
-let i = 0;
 
 export default function App() {
   const [courseGoals, setCourseGoals] = useState([]);
@@ -19,10 +17,27 @@ export default function App() {
 
   async function handleRefresh() {
     setRefreshing(true);
-    fetchedGoals = await fetchGoals(i);
-    fetchedGoalsAndStoredGoalsUnion = await loadGoals({ fetchedGoals });
-    setCourseGoals(fetchedGoalsAndStoredGoalsUnion);
-    setRefreshing(false);
+    const timeoutPromise = new Promise((resolve, reject) => {
+      setTimeout(() => {
+        reject(new Error('Request timed out'));
+      }, 5000);
+    });
+    try {
+      const fetchPromise = fetchGoals();
+      fetchedGoals = await Promise.race([fetchPromise, timeoutPromise]);
+      fetchedGoalsAndStoredGoalsUnion = await loadGoals({ fetchedGoals });
+      setCourseGoals(fetchedGoalsAndStoredGoalsUnion);
+    } catch (error) {
+      console.error(error);
+      Alert.alert(
+        'Sync Error',
+        'There was a problem syncing with the remote server.',
+        [{ text: 'OK', onPress: () => console.log('OK Pressed') }],
+        { cancelable: false }
+      );
+    } finally {
+      setRefreshing(false);
+    }
   }
 
   function scrollToIndex(index) {
@@ -34,8 +49,7 @@ export default function App() {
     const handleFetchAndStorage = async () => {
       let storageGoals = await loadGoalsFromStorage();
       setCourseGoals(storageGoals);
-
-      fetchedGoals = await fetchGoals(i);
+      fetchedGoals = await fetchGoals();
       fetchedGoalsAndStoredGoalsUnion = await loadGoals({ fetchedGoals });
       setCourseGoals(fetchedGoalsAndStoredGoalsUnion);
     };
@@ -44,18 +58,20 @@ export default function App() {
   }, []);
 
   function addGoalHandler(newCourseGoals) {
-    setCourseGoals((currentCourseGoals) => [...currentCourseGoals, { key: i.toString(), text: newCourseGoals.text }]);
+    setCourseGoals((currentCourseGoals) => [
+      ...currentCourseGoals,
+      { key: courseGoals.length, text: newCourseGoals.text },
+    ]);
 
-    postGoal({ id: i, text: newCourseGoals.text });
-
-    i++;
+    postGoal({ id: courseGoals.length, text: newCourseGoals.text });
   }
 
   function deleteGoalHandler(goalId) {
-    deleteGoal(goalId);
     setCourseGoals((currentCourseGoals) => {
       return currentCourseGoals.filter((goal) => goal.key !== goalId);
     });
+
+    deleteGoal(goalId);
   }
 
   return (
@@ -88,11 +104,7 @@ export default function App() {
           />
         </View>
         <View style={styles.bottomLayout}>
-          <GoalInput
-            onGoalHandler={addGoalHandler}
-            onKeyboardOpen={scrollToIndex}
-            lastGoal={{ id: courseGoals.length - 1 }}
-          />
+          <GoalInput onGoalHandler={addGoalHandler} onKeyboardOpen={scrollToIndex} lastGoal={courseGoals.length - 1} />
         </View>
       </ImageBackground>
     </>

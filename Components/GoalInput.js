@@ -1,13 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
-import { Text, TextInput, View, StyleSheet, Button, Keyboard, Pressable, I18nManager } from 'react-native';
+import { Text, TextInput, View, StyleSheet, Keyboard, Pressable, I18nManager } from 'react-native';
 
-function GoalInput(props) {
+function GoalInput({ onGoalHandler, onKeyboardOpen, lastGoal }) {
   const [enteredGoalText, setEnteredGoalText] = useState('');
   // const [isButtonPressed, setIsButtonPressed] = useState(false);
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   const [TextInputPlaceholder, setTextInputPlaceholder] = useState(
     I18nManager.isRTL ? 'הוסף מטרה להיום' : 'Add your goal for today'
   );
+
   // const [TextInputPlaceholder, setTextInputPlaceholder] = useState('Add your goal for today');
   const [isThereNoText, setIsThereNoText] = useState(true);
   const textInputRef = useRef(null);
@@ -15,8 +16,8 @@ function GoalInput(props) {
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
       setKeyboardVisible(true); // or some other action
-      props.onKeyboardOpen(props.lastGoal.id);
-      console.log(props.lastGoal.id);
+      onKeyboardOpen(lastGoal);
+      console.log(lastGoal);
     });
     const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
       setKeyboardVisible(false); // or some other action
@@ -28,7 +29,7 @@ function GoalInput(props) {
       keyboardDidHideListener.remove();
       keyboardDidShowListener.remove();
     };
-  }, []);
+  }, [lastGoal]);
 
   function goalInputHandler(enteredText) {
     if (isThereNoText) {
@@ -46,8 +47,8 @@ function GoalInput(props) {
     if (isKeyboardVisible) {
       if (enteredGoalText != '') {
         setEnteredGoalText('');
-        props.onGoalHandler({ text: enteredGoalText });
-        props.onKeyboardOpen(props.lastGoal.id);
+        onGoalHandler({ text: enteredGoalText });
+        onKeyboardOpen(lastGoal);
       } else {
         if (I18nManager.isRTL) {
           setTextInputPlaceholder('לא הזנת טקסט!');
