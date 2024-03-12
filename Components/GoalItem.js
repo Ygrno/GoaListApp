@@ -28,7 +28,7 @@ function GoalItem(props) {
       <Pressable
         android_ripple={styles.pressedItem}
         onPress={props.onDeleteItem.bind(this, props.id)}
-        style={({ pressed }) => pressed && styles.pressedItem}
+        style={({ pressed }) => pressed && !props.isRefreshing && styles.pressedItem}
       >
         <View style={{ flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row', alignItems: 'center' }}>
           {textComponent}

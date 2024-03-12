@@ -10,10 +10,20 @@ let i = 0;
 
 export default function App() {
   const [courseGoals, setCourseGoals] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
+
   let fetchedGoals = [];
   let fetchedGoalsAndStoredGoalsUnion = [];
 
   const flatListRef = useRef();
+
+  async function handleRefresh() {
+    setRefreshing(true);
+    fetchedGoals = await fetchGoals(i);
+    fetchedGoalsAndStoredGoalsUnion = await loadGoals({ fetchedGoals });
+    setCourseGoals(fetchedGoalsAndStoredGoalsUnion);
+    setRefreshing(false);
+  }
 
   function scrollToIndex(index) {
     if (index < 5) return;
@@ -61,11 +71,20 @@ export default function App() {
             ref={flatListRef}
             data={courseGoals}
             renderItem={(itemData) => {
-              return <GoalItem text={itemData.item.text} id={itemData.item.key} onDeleteItem={deleteGoalHandler} />;
+              return (
+                <GoalItem
+                  text={itemData.item.text}
+                  id={itemData.item.key}
+                  onDeleteItem={deleteGoalHandler}
+                  isRefreshing={refreshing}
+                />
+              );
             }}
-            alwaysBounceVertical="false"
+            // alwaysBounceVertical="true"
             keyExtractor={(item) => item.key}
             showsVerticalScrollIndicator={false}
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
           />
         </View>
         <View style={styles.bottomLayout}>

@@ -16,6 +16,7 @@ function GoalInput(props) {
     const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
       setKeyboardVisible(true); // or some other action
       props.onKeyboardOpen(props.lastGoal.id);
+      console.log(props.lastGoal.id);
     });
     const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
       setKeyboardVisible(false); // or some other action
