@@ -18,18 +18,57 @@ export default function App() {
   const [refreshing, setRefreshing] = useState(false);
   const flatListRef = useRef();
 
+  let maxKey = 0;
+
   const LoadGoalsFromStorage = async () => {
     const storedGoals = await getGoalsFromStorage();
     setCourseGoals(storedGoals);
   };
 
+  function LoadGoalsFromServer(fetchedGoals) {
+    let currentGoals = courseGoals;
+    //Make a union of the goals from the server and the goals from the storage according to the text and keep the key from the server
+    //Current goals can't have 2 goals with the same text
+    fetchedGoals.forEach((goal) => {
+      let index = currentGoals.findIndex((g) => g.text === goal.text);
+      if (index === -1) {
+        currentGoals.push(goal);
+      } else {
+        currentGoals[index].key = goal.key;
+      }
+    });
+
+    //sort the goals by key from low to high
+    currentGoals.sort((a, b) => a.key - b.key);
+    maxKey = currentGoals.length > 0 ? currentGoals[currentGoals.length - 1].key + 1 : 0;
+
+    return currentGoals;
+  }
+
+  const FetchGoalsFromServer = async () => {
+    try {
+      const fetchedGoals = await Promise.race([fetchGoals(), createTimeoutPromise(3000)]);
+      if (fetchedGoals) return fetchedGoals;
+      return [];
+    } catch (error) {
+      Alert.alert('Error', 'Failed to fetch goals from server');
+      console.error(error);
+      return [];
+    }
+  };
+
   useEffect(() => {
     LoadGoalsFromStorage();
+    FetchGoalsFromServer().then((fetchedGoals) => {
+      setCourseGoals(LoadGoalsFromServer(fetchedGoals));
+    });
   }, []);
 
   async function handleRefresh() {
     setRefreshing(true);
     await LoadGoalsFromStorage();
+    const fetchedGoals = await FetchGoalsFromServer();
+    setCourseGoals(LoadGoalsFromServer(fetchedGoals));
     setRefreshing(false);
   }
 
@@ -39,17 +78,23 @@ export default function App() {
   }
 
   function addGoalHandler(newCourseGoals) {
-    let maxKey = courseGoals.length > 0 ? courseGoals[courseGoals.length - 1].key + 1 : 0;
+    maxKey = courseGoals.length > 0 ? courseGoals[courseGoals.length - 1].key + 1 : 0;
 
     let updatedCourseGoals = [...courseGoals, { key: maxKey, text: newCourseGoals.text }];
     setCourseGoals(updatedCourseGoals);
     setGoalsToStorage(updatedCourseGoals);
+
+    //Server Request
+    postGoal({ id: maxKey, text: newCourseGoals.text });
   }
 
   function deleteGoalHandler(goalId) {
     let filiteredGoals = courseGoals.filter((goal) => goal.key !== goalId);
     setCourseGoals(filiteredGoals);
     setGoalsToStorage(filiteredGoals);
+
+    //Server Request
+    deleteGoal(goalId);
   }
 
   return (

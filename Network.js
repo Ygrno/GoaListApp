@@ -29,7 +29,6 @@ async function postGoal({ id, text }) {
 async function deleteGoal(goalId) {
   try {
     const response = await axios.delete(`https://fastapi-example-xguk.onrender.com/goals/${goalId}`);
-    console.log(response.data);
   } catch (error) {
     console.error(error);
   }
@@ -47,7 +46,6 @@ export const createTimeoutPromise = (timeout) => {
 async function getGoalsFromStorage() {
   try {
     const storedGoals = await AsyncStorage.getItem('courseGoals');
-    console.log('storedGoals:', storedGoals);
     if (!storedGoals) return [];
     return JSON.parse(storedGoals);
   } catch (error) {
