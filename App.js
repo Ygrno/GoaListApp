@@ -5,7 +5,6 @@ import GoalItem from './Components/GoalItem';
 import GoalInput from './Components/GoalInput';
 
 import {
-  loadGoals,
   fetchGoals,
   postGoal,
   deleteGoal,
@@ -23,13 +22,14 @@ export default function App() {
     const storedGoals = await getGoalsFromStorage();
     setCourseGoals(storedGoals);
   };
+
   useEffect(() => {
     LoadGoalsFromStorage();
   }, []);
 
   async function handleRefresh() {
     setRefreshing(true);
-    LoadGoalsFromStorage();
+    await LoadGoalsFromStorage();
     setRefreshing(false);
   }
 
@@ -39,7 +39,9 @@ export default function App() {
   }
 
   function addGoalHandler(newCourseGoals) {
-    let updatedCourseGoals = [...courseGoals, { key: courseGoals.length, text: newCourseGoals.text }];
+    let maxKey = courseGoals.length > 0 ? courseGoals[courseGoals.length - 1].key + 1 : 0;
+
+    let updatedCourseGoals = [...courseGoals, { key: maxKey, text: newCourseGoals.text }];
     setCourseGoals(updatedCourseGoals);
     setGoalsToStorage(updatedCourseGoals);
   }

@@ -14,34 +14,6 @@ async function fetchGoals() {
   }
 }
 
-async function loadGoals({ fetchedGoals }) {
-  try {
-    const storedGoals = await getGoalsFromStorage();
-    let parsedStoredGoals = storedGoals;
-    console.log('parsedStoredGoals:', parsedStoredGoals);
-    if (fetchedGoals.length > 0) {
-      console.log('storedGoals is not empty');
-      // if stored goals are not empty setCourseGoals the union of storedGoals and fetchedGoals
-
-      for (let i = 0; i < fetchedGoals.length; i++) {
-        let isGoalAlreadyStored = false;
-        for (let j = 0; j < parsedStoredGoals.length; j++) {
-          if (fetchedGoals[i].key === parsedStoredGoals[j].key) {
-            isGoalAlreadyStored = true;
-            break;
-          }
-        }
-        if (!isGoalAlreadyStored) {
-          parsedStoredGoals.push(fetchedGoals[i]);
-        }
-      }
-    }
-    return parsedStoredGoals;
-  } catch (error) {
-    console.error(error);
-  }
-}
-
 async function postGoal({ id, text }) {
   try {
     const response = await axios.post('https://fastapi-example-xguk.onrender.com/goals/', {
@@ -94,4 +66,4 @@ async function setGoalsToStorage(goals) {
   }
 }
 
-export { fetchGoals, loadGoals, postGoal, deleteGoal, getGoalsFromStorage, setGoalsToStorage };
+export { fetchGoals, postGoal, deleteGoal, getGoalsFromStorage, setGoalsToStorage };
