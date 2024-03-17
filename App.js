@@ -4,36 +4,33 @@ import { StatusBar } from 'expo-status-bar';
 import GoalItem from './Components/GoalItem';
 import GoalInput from './Components/GoalInput';
 
-import { loadGoals, fetchGoals, postGoal, deleteGoal, loadGoalsFromStorage, timeoutPromise } from './Network';
+import {
+  loadGoals,
+  fetchGoals,
+  postGoal,
+  deleteGoal,
+  getGoalsFromStorage,
+  setGoalsToStorage,
+  createTimeoutPromise,
+} from './Network';
 
 export default function App() {
   const [courseGoals, setCourseGoals] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
-
-  let fetchedGoals;
-
   const flatListRef = useRef();
+
+  const LoadGoalsFromStorage = async () => {
+    const storedGoals = await getGoalsFromStorage();
+    setCourseGoals(storedGoals);
+  };
+  useEffect(() => {
+    LoadGoalsFromStorage();
+  }, []);
 
   async function handleRefresh() {
     setRefreshing(true);
-    const fetchPromise = fetchGoals();
-    try {
-      fetchedGoals = await Promise.race([fetchPromise, timeoutPromise]);
-    } catch (error) {
-      console.error(error);
-      Alert.alert(
-        'Sync Error',
-        'There was a problem syncing with the remote server.',
-        [{ text: 'OK', onPress: () => console.log('OK Pressed') }],
-        { cancelable: true }
-      );
-    } finally {
-      if (fetchedGoals instanceof Error == false) {
-        setCourseGoals(await loadGoals({ fetchedGoals }));
-      }
-      setRefreshing(false);
-      console.log('refreshing = false');
-    }
+    LoadGoalsFromStorage();
+    setRefreshing(false);
   }
 
   function scrollToIndex(index) {
@@ -41,40 +38,16 @@ export default function App() {
     flatListRef.current.scrollToIndex({ index });
   }
 
-  useEffect(() => {
-    const handleFetchAndStorage = async () => {
-      setCourseGoals(await loadGoalsFromStorage());
-      const fetchPromise = fetchGoals();
-      fetchedGoals = await Promise.race([fetchPromise, timeoutPromise]);
-      if (fetchedGoals instanceof Error) {
-        Alert.alert(
-          'Connection Error',
-          'There was a problem connecting to the remote server.',
-          [{ text: 'OK', onPress: () => console.log('OK Pressed') }],
-          { cancelable: false }
-        );
-      } else {
-        setCourseGoals(await loadGoals({ fetchedGoals }));
-      }
-    };
-    handleFetchAndStorage();
-  }, []);
-
   function addGoalHandler(newCourseGoals) {
-    setCourseGoals((currentCourseGoals) => [
-      ...currentCourseGoals,
-      { key: courseGoals.length, text: newCourseGoals.text },
-    ]);
-
-    postGoal({ id: courseGoals.length, text: newCourseGoals.text });
+    let updatedCourseGoals = [...courseGoals, { key: courseGoals.length, text: newCourseGoals.text }];
+    setCourseGoals(updatedCourseGoals);
+    setGoalsToStorage(updatedCourseGoals);
   }
 
   function deleteGoalHandler(goalId) {
-    setCourseGoals((currentCourseGoals) => {
-      return currentCourseGoals.filter((goal) => goal.key !== goalId);
-    });
-
-    deleteGoal(goalId);
+    let filiteredGoals = courseGoals.filter((goal) => goal.key !== goalId);
+    setCourseGoals(filiteredGoals);
+    setGoalsToStorage(filiteredGoals);
   }
 
   return (
