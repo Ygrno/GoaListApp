@@ -23,6 +23,7 @@ function GoalInput({ onGoalHandler, onKeyboardOpen, lastGoal }) {
       setKeyboardVisible(false); // or some other action
       setIsThereNoText(true);
       goalInputHandler('');
+      textInputRef.current.blur();
     });
 
     return () => {
