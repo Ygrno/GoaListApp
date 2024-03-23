@@ -13,6 +13,8 @@ Also, there's no use of a database, so if the server restarts the list of goals 
 The reason for that is that I never meant to publish this app, only using it as a prototype or proof of concept and sharing it with close group of friends.
 Please be aware of this when using the application.
 
+The app has been tested only on android devices, I have no Idea how it behaves or looks on an ios!
+
 ## Features
 
 - Fetch goals from a server or local storage
