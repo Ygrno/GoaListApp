@@ -19,6 +19,7 @@ Please be aware of this when using the application.
 - Add new goals
 - Delete existing goals
 - View a list of current goals
+- Hebrew support on devices with hebrew as default system language
 
 ## Installation
 
