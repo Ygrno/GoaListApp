@@ -47,6 +47,7 @@ To build an apk file - I'm using the command: 'eas build -p android --profile pr
 Here are some screenshots of the GoalList app:
 
 <p float="left" align="center">
-  <img src="https://github.com/Ygrno/GoaListApp/assets/26521541/c94b28ff-c8b4-423a-aae4-53ff49310e7c" width="200" />
+  <img src="https://github.com/Ygrno/GoaListApp/assets/26521541/1f681ac9-766b-489c-9945-9e78219265af" width="200" /> 
+  <img src="https://github.com/Ygrno/GoaListApp/assets/26521541/a7e6014e-6a1e-44db-a467-74c9c9a1871c" width="200" /> 
   <img src="https://github.com/Ygrno/GoaListApp/assets/26521541/a7e6014e-6a1e-44db-a467-74c9c9a1871c" width="200" /> 
 </p>
