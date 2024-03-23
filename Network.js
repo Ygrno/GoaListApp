@@ -1,9 +1,15 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
+const TIMEOUT = 5000; // Predefined timeout in milliseconds
+
+const axiosInstance = axios.create({
+  timeout: TIMEOUT,
+});
+
 async function fetchGoals() {
   try {
-    const response = await axios.get('https://fastapi-example-xguk.onrender.com/goals/');
+    const response = await axiosInstance.get('https://fastapi-example-xguk.onrender.com/goals/');
     const fetchedGoals = response.data.goals.map((goal) => {
       console.log(goal);
       return { key: goal.ID, text: goal.Text };
@@ -11,12 +17,23 @@ async function fetchGoals() {
     return fetchedGoals;
   } catch (error) {
     console.error(error);
+    return [];
+  }
+}
+
+async function fetchMaxGoalId() {
+  try {
+    const response = await axiosInstance.get('https://fastapi-example-xguk.onrender.com/goals/maxID/');
+    return response.data.maxID;
+  } catch (error) {
+    console.error(error);
+    return { maxID: 0 };
   }
 }
 
 async function postGoal({ id, text }) {
   try {
-    const response = await axios.post('https://fastapi-example-xguk.onrender.com/goals/', {
+    const response = await axiosInstance.post('https://fastapi-example-xguk.onrender.com/goals/', {
       ID: id,
       Text: text,
     });
@@ -28,7 +45,7 @@ async function postGoal({ id, text }) {
 
 async function deleteGoal(goalId) {
   try {
-    const response = await axios.delete(`https://fastapi-example-xguk.onrender.com/goals/${goalId}`);
+    const response = await axiosInstance.delete(`https://fastapi-example-xguk.onrender.com/goals/${goalId}`);
     console.log(response.data);
   } catch (error) {
     console.error(error);
@@ -43,22 +60,21 @@ export const createTimeoutPromise = (timeout) => {
   });
 };
 
-//Function for getting the goals from storage
+// Function for getting the goals from storage
 async function getGoalsFromStorage() {
   try {
     const storedGoals = await AsyncStorage.getItem('courseGoals');
-    console.log('storedGoals:', storedGoals);
     if (!storedGoals) return [];
     return JSON.parse(storedGoals);
   } catch (error) {
     console.error(error);
+    return [];
   }
 }
 
-//Function for setting the goals to storage
+// Function for setting the goals to storage
 async function setGoalsToStorage(goals) {
   try {
-    console.log('goals:', goals);
     await AsyncStorage.setItem('courseGoals', JSON.stringify(goals));
     console.log('Goals set to storage');
   } catch (error) {
@@ -66,4 +82,4 @@ async function setGoalsToStorage(goals) {
   }
 }
 
-export { fetchGoals, postGoal, deleteGoal, getGoalsFromStorage, setGoalsToStorage };
+export { fetchGoals, postGoal, deleteGoal, fetchMaxGoalId, getGoalsFromStorage, setGoalsToStorage };
