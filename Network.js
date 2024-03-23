@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
-const TIMEOUT = 5000; // Predefined timeout in milliseconds
+const TIMEOUT = 1000; // Predefined timeout in milliseconds
 
 const axiosInstance = axios.create({
   timeout: TIMEOUT,
