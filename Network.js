@@ -1,74 +1,43 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
-async function fetchGoals(i) {
+const TIMEOUT = 5000; // Predefined timeout in milliseconds
+
+const axiosInstance = axios.create({
+  timeout: TIMEOUT,
+});
+
+async function fetchGoals() {
   try {
-    const response = await axios.get('https://fastapi-example-xguk.onrender.com/goals/');
+    const response = await axiosInstance.get('https://fastapi-example-xguk.onrender.com/goals/');
     const fetchedGoals = response.data.goals.map((goal) => {
-      i++;
-      //   console.log(goal);
+      console.log(goal);
       return { key: goal.ID, text: goal.Text };
     });
-    await AsyncStorage.setItem('courseGoals', JSON.stringify(fetchedGoals));
     return fetchedGoals;
   } catch (error) {
     console.error(error);
+    return [];
   }
 }
 
-async function loadGoals({ fetchedGoals }) {
+async function fetchMaxGoalId() {
   try {
-    const storedGoals = await AsyncStorage.getItem('courseGoals');
-    // console.log(storedGoals);
-    // console.log(props.fetchedGoals);
-    if (storedGoals.length > 2 && fetchedGoals.length > 2) {
-      console.log('storedGoals is not empty');
-      // if stored goals are not empty setCourseGoals the union of storedGoals and fetchedGoals
-      let parsedStoredGoals = JSON.parse(storedGoals);
-
-      for (let i = 0; i < fetchedGoals.length; i++) {
-        let isGoalAlreadyStored = false;
-        for (let j = 0; j < parsedStoredGoals.length; j++) {
-          if (fetchedGoals[i].key === parsedStoredGoals[j].key) {
-            isGoalAlreadyStored = true;
-            break;
-          }
-        }
-        if (!isGoalAlreadyStored) {
-          parsedStoredGoals.push(fetchedGoals[i]);
-        }
-      }
-      await AsyncStorage.setItem('courseGoals', JSON.stringify(parsedStoredGoals));
-      return parsedStoredGoals;
-    } else return fetchedGoals;
+    const response = await axiosInstance.get('https://fastapi-example-xguk.onrender.com/goals/maxID/');
+    return response.data.maxID;
   } catch (error) {
     console.error(error);
-  }
-}
-
-async function loadGoalsFromStorage() {
-  try {
-    const storedGoals = await AsyncStorage.getItem('courseGoals');
-    return JSON.parse(storedGoals);
-  } catch (error) {
-    console.error(error);
+    return { maxID: 0 };
   }
 }
 
 async function postGoal({ id, text }) {
   try {
-    const response = await axios.post('https://fastapi-example-xguk.onrender.com/goals/', {
+    const response = await axiosInstance.post('https://fastapi-example-xguk.onrender.com/goals/', {
       ID: id,
       Text: text,
     });
     console.log(response.data);
-
-    const storedGoals = await AsyncStorage.getItem('courseGoals');
-    if (storedGoals) {
-      let parsedStoredGoals = JSON.parse(storedGoals);
-      parsedStoredGoals.push({ key: id.toString(), text: text });
-      await AsyncStorage.setItem('courseGoals', JSON.stringify(parsedStoredGoals));
-    }
   } catch (error) {
     console.error(error);
   }
@@ -76,18 +45,41 @@ async function postGoal({ id, text }) {
 
 async function deleteGoal(goalId) {
   try {
-    const response = await axios.delete(`https://fastapi-example-xguk.onrender.com/goals/${goalId}`);
+    const response = await axiosInstance.delete(`https://fastapi-example-xguk.onrender.com/goals/${goalId}`);
     console.log(response.data);
-
-    const storedGoals = await AsyncStorage.getItem('courseGoals');
-    if (storedGoals) {
-      let parsedStoredGoals = JSON.parse(storedGoals);
-      let filteredStoredGoals = parsedStoredGoals.filter((goal) => goal.key !== goalId);
-      await AsyncStorage.setItem('courseGoals', JSON.stringify(filteredStoredGoals));
-    }
   } catch (error) {
     console.error(error);
   }
 }
 
-export { fetchGoals, loadGoals, postGoal, deleteGoal, loadGoalsFromStorage };
+export const createTimeoutPromise = (timeout) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      reject(new Error('Request timed out'));
+    }, timeout);
+  });
+};
+
+// Function for getting the goals from storage
+async function getGoalsFromStorage() {
+  try {
+    const storedGoals = await AsyncStorage.getItem('courseGoals');
+    if (!storedGoals) return [];
+    return JSON.parse(storedGoals);
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+}
+
+// Function for setting the goals to storage
+async function setGoalsToStorage(goals) {
+  try {
+    await AsyncStorage.setItem('courseGoals', JSON.stringify(goals));
+    console.log('Goals set to storage');
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export { fetchGoals, postGoal, deleteGoal, fetchMaxGoalId, getGoalsFromStorage, setGoalsToStorage };

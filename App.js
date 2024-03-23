@@ -1,28 +1,67 @@
-import { StyleSheet, View, ImageBackground, FlatList, Dimensions } from 'react-native';
+import { StyleSheet, View, ImageBackground, FlatList, Dimensions, Alert } from 'react-native';
 import { useState, useEffect, useRef } from 'react';
+import { StatusBar } from 'expo-status-bar';
 import GoalItem from './Components/GoalItem';
 import GoalInput from './Components/GoalInput';
-import { StatusBar } from 'expo-status-bar';
 
-import { loadGoals, fetchGoals, postGoal, deleteGoal, loadGoalsFromStorage } from './Network';
-
-let i = 0;
+import { fetchGoals, postGoal, deleteGoal, getGoalsFromStorage, setGoalsToStorage } from './Network';
 
 export default function App() {
   const [courseGoals, setCourseGoals] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
-
-  let fetchedGoals = [];
-  let fetchedGoalsAndStoredGoalsUnion = [];
-
   const flatListRef = useRef();
+
+  const FetchGoalsFromStorage = async () => {
+    const storedGoals = await getGoalsFromStorage();
+    return storedGoals;
+  };
+
+  const FetchGoalsFromServer = async () => {
+    try {
+      return await fetchGoals();
+    } catch (error) {
+      console.error(error);
+      return [];
+    }
+  };
+
+  useEffect(() => {
+    const initializeApp = async () => {
+      let storageGoals = await FetchGoalsFromStorage();
+      setCourseGoals(storageGoals);
+      let serverGoals = await FetchGoalsFromServer();
+
+      await mergeGoals(storageGoals, serverGoals);
+    };
+    initializeApp();
+  }, []);
 
   async function handleRefresh() {
     setRefreshing(true);
-    fetchedGoals = await fetchGoals(i);
-    fetchedGoalsAndStoredGoalsUnion = await loadGoals({ fetchedGoals });
-    setCourseGoals(fetchedGoalsAndStoredGoalsUnion);
+    let storageGoals = courseGoals;
+    let serverGoals = await FetchGoalsFromServer();
+
+    await mergeGoals(storageGoals, serverGoals);
+
     setRefreshing(false);
+  }
+
+  async function mergeGoals(storageGoals, serverGoals) {
+    for (let i = 0; i < storageGoals.length; i++) {
+      let found = false;
+      for (let j = 0; j < serverGoals.length && found == false; j++) {
+        if (storageGoals[i].text == serverGoals[j].text) {
+          found = true;
+        }
+      }
+      if (found == false) {
+        serverGoals.push({ key: Math.random().toString(36), text: storageGoals[i].text });
+      }
+    }
+
+    await setGoalsToStorage(serverGoals);
+    setCourseGoals(serverGoals);
+    console.log(serverGoals);
   }
 
   function scrollToIndex(index) {
@@ -30,32 +69,27 @@ export default function App() {
     flatListRef.current.scrollToIndex({ index });
   }
 
-  useEffect(() => {
-    const handleFetchAndStorage = async () => {
-      let storageGoals = await loadGoalsFromStorage();
-      setCourseGoals(storageGoals);
+  async function addGoalHandler(newCourseGoals) {
+    maxKey = Math.random().toString(36);
 
-      fetchedGoals = await fetchGoals(i);
-      fetchedGoalsAndStoredGoalsUnion = await loadGoals({ fetchedGoals });
-      setCourseGoals(fetchedGoalsAndStoredGoalsUnion);
-    };
+    let goalToAdd = { key: maxKey, text: newCourseGoals.text };
 
-    handleFetchAndStorage();
-  }, []);
+    let updatedCourseGoals = [...courseGoals, goalToAdd];
+    console.log('Added Goal = {' + goalToAdd.key + ', ' + goalToAdd.text + '}');
 
-  function addGoalHandler(newCourseGoals) {
-    setCourseGoals((currentCourseGoals) => [...currentCourseGoals, { key: i.toString(), text: newCourseGoals.text }]);
+    setCourseGoals(updatedCourseGoals);
+    setGoalsToStorage(updatedCourseGoals);
 
-    postGoal({ id: i, text: newCourseGoals.text });
-
-    i++;
+    postGoal({ id: goalToAdd.key, text: goalToAdd.text });
   }
 
   function deleteGoalHandler(goalId) {
+    console.log('Deleting goal with id: ' + goalId);
+    let filiteredGoals = courseGoals.filter((goal) => goal.key !== goalId);
+    setCourseGoals(filiteredGoals);
+    setGoalsToStorage(filiteredGoals);
+
     deleteGoal(goalId);
-    setCourseGoals((currentCourseGoals) => {
-      return currentCourseGoals.filter((goal) => goal.key !== goalId);
-    });
   }
 
   return (
@@ -88,11 +122,7 @@ export default function App() {
           />
         </View>
         <View style={styles.bottomLayout}>
-          <GoalInput
-            onGoalHandler={addGoalHandler}
-            onKeyboardOpen={scrollToIndex}
-            lastGoal={{ id: courseGoals.length - 1 }}
-          />
+          <GoalInput onGoalHandler={addGoalHandler} onKeyboardOpen={scrollToIndex} lastGoal={courseGoals.length - 1} />
         </View>
       </ImageBackground>
     </>

@@ -21,7 +21,7 @@ app.add_middleware(
 goals = []
 
 class Goal(BaseModel):
-    ID: int
+    ID: str
     Text: str
 
 @app.post("/goals/")
@@ -34,11 +34,20 @@ async def create_goal(goal: Goal):
 async def read_goals():
     return {"goals": goals}
 
+@app.get("/goals/maxID/")
+async def get_maxID():
+    maxID = 0
+    for goal in goals:
+        if goal.ID > maxID:
+            maxID = goal.ID
+    return {"maxID": maxID}
+
 # Step 6: Create a DELETE operation to remove a goal
 @app.delete("/goals/{goal_id}")
-async def delete_goal(goal_id: int):
+async def delete_goal(goal_id: str):
     for goal in goals:
         if goal.ID == goal_id:
             goals.remove(goal)
             return {"message": "Goal with ID " + str(goal_id) + " deleted"}
     return {"message": "Goal with ID " + str(goal_id) + " not found"}
+
