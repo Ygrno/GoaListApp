@@ -15,26 +15,26 @@ This is a React Native application that allows users to manage a list of goals. 
 
 To install the project, follow these steps:
 
-1. Clone the repository: `git clone https://github.com/yourusername/goalList.git`
-2. Navigate into the project directory: `cd goalList`
-3. Install the dependencies: `npm install`
+1. Clone the repository: `git clone https://github.com/Ygrno/GoaListApp.git`
+2. Install the dependencies: `npm install`
 
 ## Usage
 
-To run the project, use the command: `npm start`
+Start the 'expo' server: 'npm-start'
+If you have an android emulator installed on your device you can press 'a' and view the app. 
+
+To build an apk file - I'm using the command: 'eas build -p android --profile preview'
 
 ## Dependencies
 
 - React Native
 - Expo
 
-## Contributing
+## Screenshots
 
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+Here are some screenshots of the GoalList app:
 
-## License
-
-[MIT](https://choosealicense.com/licenses/mit/)
-
-
-<img src="https://github.com/Ygrno/GoaListApp/assets/26521541/3a6dd5f5-649d-4985-b4b0-e725db4eb3c9" width="500">
+<p float="left" align="center">
+  <img src="https://github.com/Ygrno/GoaListApp/assets/26521541/c94b28ff-c8b4-423a-aae4-53ff49310e7c" width="200" />
+  <img src="https://github.com/Ygrno/GoaListApp/assets/26521541/a7e6014e-6a1e-44db-a467-74c9c9a1871c" width="200" /> 
+</p>
