@@ -10,7 +10,7 @@ This application shares the same server-side data among all users. This means th
 There is currently no separation of data between different devices or users, and the application does not support any kind of authentication or security.
 Also, there's no use of a database, so if the server restarts the list of goals restarts with it.
 
-The reason for that is that I never meant to publish this app, only using it as a concept of proof and sharing it with a close group of friends.
+The reason for that is that I never meant to publish this app, only using it as a prototype or proof of concept and sharing it with close group of friends.
 Please be aware of this when using the application.
 
 ## Features
