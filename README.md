@@ -4,7 +4,7 @@
 
 This is a React Native application that allows users to manage a list of goals. The goals can be fetched from a server or local storage, and the user can add, delete, and view goals.
 
-## Important Note
+## Important Notes
 
 This application shares the same server-side data among all users. This means that each user will be exposed to the same list of goals stored on the server. 
 There is currently no separation of data between different devices or users, and the application does not support any kind of authentication or security.
