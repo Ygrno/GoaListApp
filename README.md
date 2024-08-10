@@ -2,7 +2,7 @@
 
 ## Description
 
-This is a React Native application that allows users to manage a list of goals. The goals can be fetched from a server or local storage, and the user can add, delete, and view goals.
+This is a React Native application that allows users to manage a list of goals. The goals can be fetched from a server or local storage, and the user can add, delete or view goals.
 
 ## Important Notes
 
@@ -12,6 +12,8 @@ Also, there's no use of a database, so if the server restarts the list of goals 
 
 The reason for that is that I never meant to publish this app, only using it as a prototype or proof of concept and sharing it with close group of friends.
 Please be aware of this when using the application.
+
+Feel free to use this project as a template for creating your own Goal-List app with a custom server-side implementation.
 
 The app has been tested only on android devices, I have no Idea how it behaves or looks on an ios!
 
